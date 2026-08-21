@@ -1,4 +1,4 @@
-package model;
+package policy;
 
 public abstract class User {
     private String id;

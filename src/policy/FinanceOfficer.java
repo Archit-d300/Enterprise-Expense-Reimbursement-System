@@ -1,4 +1,4 @@
-package model;
+package policy;
 
 public class FinanceOfficer extends User {
     public FinanceOfficer(String id,String name) {
