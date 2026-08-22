@@ -5,7 +5,7 @@ import java.util.List;
 import model.ExpenseClaim;
 import policy.User;
 import policy.Manager;
-
+import policy.Administrator;
 
 public class ExpenseClaimSubject {
     private final List<Observer> observers = new ArrayList<>();
@@ -22,14 +22,19 @@ public class ExpenseClaimSubject {
 
     public void notifyObservers(ExpenseClaim claim, User submitter) {
         boolean isManager = submitter instanceof Manager;
+        boolean isAdmin = submitter instanceof Administrator;
 
         for (Observer observer : observers) {
-            if (isManager && observer instanceof EmployeeObserver) {
+            if ((isManager || isAdmin) && observer instanceof EmployeeObserver) {
                 continue; 
             }
 
-            if (observer instanceof ManagerObserver) {
-                ((ManagerObserver) observer).setManagerSubmitter(isManager);
+            if ((isManager || isAdmin) && observer instanceof ManagerObserver) {
+                continue; 
+            }
+
+            if (!isManager && !isAdmin && observer instanceof ExecutiveObserver) {
+                continue; 
             }
 
             observer.update(claim);
