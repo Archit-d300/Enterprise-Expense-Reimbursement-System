@@ -1,0 +1,12 @@
+# Compiled Java output
+*.class
+bin/
+out/
+
+# Database files
+*.db
+expense_app.db
+
+# System files
+.DS_Store
+Thumbs.db
