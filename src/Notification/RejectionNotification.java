@@ -1,4 +1,4 @@
-package Notification;
+package notification;
 
 public class RejectionNotification extends Notification {
 

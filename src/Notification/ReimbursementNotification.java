@@ -1,4 +1,4 @@
-package Notification;
+package notification;
 
 public class ReimbursementNotification extends Notification {
 

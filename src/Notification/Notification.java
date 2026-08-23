@@ -1,4 +1,4 @@
-package Notification;
+package notification;
 
 public abstract class Notification {
 
