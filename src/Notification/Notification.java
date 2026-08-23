@@ -1,3 +1,5 @@
+package Notification;
+
 public abstract class Notification {
 
     protected NotificationChannel channel;

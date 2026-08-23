@@ -1,3 +1,5 @@
+package Notification;
+
 public class RejectionNotification extends Notification {
 
     public RejectionNotification(NotificationChannel channel) {
@@ -7,8 +9,7 @@ public class RejectionNotification extends Notification {
     @Override
     public void send(String to) {
 
-        String message =
-                "Your expense reimbursement request has been rejected.";
+        String message = "Your expense reimbursement request has been rejected.";
 
         channel.sendMessage(to, message);
     }
