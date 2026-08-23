@@ -1,6 +1,6 @@
-package src.factory;
-import src.model.ExpenseClaim;
-import src.model.TravelExpense;
+package factory;
+import model.ExpenseClaim;
+import model.TravelExpense;
 
 public class TravelExpenseFactory extends ExpenseFactory {
     

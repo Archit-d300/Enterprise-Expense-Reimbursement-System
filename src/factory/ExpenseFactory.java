@@ -1,5 +1,5 @@
-package src.factory;
-import src.model.ExpenseClaim;
+package factory;
+import model.ExpenseClaim;
 
 public abstract class ExpenseFactory {
 

@@ -1,4 +1,4 @@
-package src.model;
+package model;
 public class TravelExpense extends ExpenseClaim {
     
     public TravelExpense(int employeeId, double amount, String email, String description){

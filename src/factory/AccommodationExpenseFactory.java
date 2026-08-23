@@ -1,6 +1,6 @@
-package src.factory;
-import src.model.ExpenseClaim;
-import src.model.AccommodationExpense;
+package factory;
+import model.ExpenseClaim;
+import model.AccommodationExpense;
 
 public class AccommodationExpenseFactory extends ExpenseFactory {
     public ExpenseClaim createExpense(int employeeId, double amount, String email, String description){

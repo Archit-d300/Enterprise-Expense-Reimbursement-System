@@ -1,4 +1,4 @@
-package src.model;
+package model;
 import java.time.LocalDateTime;
 
 public abstract class ExpenseClaim {
