@@ -10,6 +10,7 @@ public abstract class ExpenseClaim {
     private String status;
     private String email;
     private String description;
+    private String remarks;
     private LocalDateTime timestamp; 
 
     public ExpenseClaim(int employeeId, double amount, String email, String description) {
@@ -46,5 +47,13 @@ public abstract class ExpenseClaim {
 
     public LocalDateTime getTimestamp() {
         return timestamp;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
     }
 }
