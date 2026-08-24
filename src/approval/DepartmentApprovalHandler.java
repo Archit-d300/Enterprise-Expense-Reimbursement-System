@@ -27,6 +27,7 @@ public class DepartmentApprovalHandler extends ExpenseHandler{
 
     private void reject(ExpenseClaim claim, String reason) {
         claim.setStatus("REJECTED");
+        claim.setRemarks(reason);
         System.out.println("Department Approval: REJECTED");
         System.out.println("Reason: " + reason);
     }

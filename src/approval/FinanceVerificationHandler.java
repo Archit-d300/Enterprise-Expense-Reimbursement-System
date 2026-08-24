@@ -28,6 +28,7 @@ public class FinanceVerificationHandler extends ExpenseHandler {
 
     private void reject(ExpenseClaim claim, String reason) {
         claim.setStatus("REJECTED");
+        claim.setRemarks(reason);
         System.out.println("Finance Verification: REJECTED");
         System.out.println("Reason: " + reason);
     }

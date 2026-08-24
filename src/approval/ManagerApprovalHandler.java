@@ -27,6 +27,7 @@ public class ManagerApprovalHandler extends ExpenseHandler{
 
     private void reject(ExpenseClaim claim, String reason) {
         claim.setStatus("REJECTED");
+        claim.setRemarks(reason);
         System.out.println("Manager Approval: REJECTED");
         System.out.println("Reason: " + reason);
     }
