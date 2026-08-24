@@ -16,6 +16,20 @@ public class EmailChannel implements NotificationChannel {
         this.appPassword = appPassword;
     }
 
+    public static EmailChannel fromEnvironment() {
+        String senderEmail = System.getenv("EXPENSE_SMTP_EMAIL");
+        String appPassword = System.getenv("EXPENSE_SMTP_APP_PASSWORD");
+
+        if (senderEmail == null || appPassword == null) {
+            System.out.println("WARNING: EXPENSE_SMTP_EMAIL / EXPENSE_SMTP_APP_PASSWORD not set.");
+            System.out.println("Emails will be attempted but will fail to actually send until these are configured.");
+            senderEmail = (senderEmail == null) ? "not-configured@example.com" : senderEmail;
+            appPassword = (appPassword == null) ? "not-configured" : appPassword;
+        }
+
+        return new EmailChannel(senderEmail, appPassword);
+    }
+
     @Override
     public void sendMessage(String to, String message) {
 
@@ -25,6 +39,10 @@ public class EmailChannel implements NotificationChannel {
         properties.put("mail.smtp.starttls.enable", "true");
         properties.put("mail.smtp.host", "smtp.gmail.com");
         properties.put("mail.smtp.port", "587");
+
+        properties.put("mail.smtp.connectiontimeout", "8000");
+        properties.put("mail.smtp.timeout", "8000");
+        properties.put("mail.smtp.writetimeout", "8000");
 
         Session session = Session.getInstance(
                 properties,
