@@ -50,6 +50,7 @@ public class ReimbursementProcessor {
         if ("SUCCESS".equals(record.getStatus())) {
 
             claim.setStatus("REIMBURSED");
+            claim.setRemarks(record.getReason());
 
             System.out.println(
                     "Reimbursement completed successfully."
@@ -58,6 +59,7 @@ public class ReimbursementProcessor {
         } else {
 
             claim.setStatus("PAYMENT_FAILED");
+            claim.setRemarks(record.getReason());
 
             System.out.println(
                     "Reimbursement failed."
