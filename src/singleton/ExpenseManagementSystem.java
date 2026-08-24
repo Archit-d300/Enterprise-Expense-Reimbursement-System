@@ -32,6 +32,7 @@ public class ExpenseManagementSystem {
         
         switch (role.toUpperCase()) {
             case "MANAGER":
+            case "FINANCE":
                 return new ManagerExpenseFactory();
             case "EXECUTIVE":
             case "ADMIN":
