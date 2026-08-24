@@ -1,0 +1,6 @@
+out/
+*.class
+expense_system.db
+.vscode/settings.json
+*.log
+*.bat
