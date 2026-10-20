@@ -1,6 +1,8 @@
 package db;
 
-public class PendingExpense {
+import prototype.ExpensePrototype;
+
+public class PendingExpense implements ExpensePrototype<PendingExpense> {
 
     private final int id;
     private final int employeeId;
@@ -12,7 +14,7 @@ public class PendingExpense {
     private final String description;
 
     public PendingExpense(int id, int employeeId, String employeeName, String employeeEmail,
-                           String role, String expenseType, double amount, String description) {
+                          String role, String expenseType, double amount, String description) {
         this.id = id;
         this.employeeId = employeeId;
         this.employeeName = employeeName;
@@ -33,8 +35,23 @@ public class PendingExpense {
     public String getDescription() { return description; }
 
     @Override
+    public PendingExpense cloneExpense() {
+        return new PendingExpense(
+                this.id,
+                this.employeeId,
+                this.employeeName,
+                this.employeeEmail,
+                this.role,
+                this.expenseType,
+                this.amount,
+                this.description
+        );
+    }
+
+    @Override
     public String toString() {
-        return "PendingExpense{id=" + id + ", employeeId=" + employeeId +
+        return "PendingExpense{id=" + id +
+                ", employeeId=" + employeeId +
                 ", employeeName='" + employeeName + '\'' +
                 ", role='" + role + '\'' +
                 ", expenseType='" + expenseType + '\'' +
