@@ -1,6 +1,6 @@
 package db;
-
-public class PendingExpense {
+import prototype.ExpensePrototype;
+public class PendingExpense implements ExpensePrototype<PendingExpense> {
 
     private final int id;
     private final int employeeId;
@@ -40,4 +40,10 @@ public class PendingExpense {
                 ", expenseType='" + expenseType + '\'' +
                 ", amount=" + amount + '}';
     }
+
+    @Override
+public PendingExpense cloneExpense() {
+    return new PendingExpense(-1, employeeId, employeeName, employeeEmail, role,
+            expenseType, amount, description);
+}
 }
