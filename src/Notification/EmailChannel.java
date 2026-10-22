@@ -16,15 +16,16 @@ public class EmailChannel implements NotificationChannel {
         this.appPassword = appPassword;
     }
 
-    public static EmailChannel fromEnvironment() {
+    public static NotificationChannel fromEnvironment() {
+        String enabled = System.getenv("EXPENSE_SMTP_ENABLED");
         String senderEmail = System.getenv("EXPENSE_SMTP_EMAIL");
         String appPassword = System.getenv("EXPENSE_SMTP_APP_PASSWORD");
 
-        if (senderEmail == null || appPassword == null) {
-            System.out.println("WARNING: EXPENSE_SMTP_EMAIL / EXPENSE_SMTP_APP_PASSWORD not set.");
-            System.out.println("Emails will be attempted but will fail to actually send until these are configured.");
-            senderEmail = (senderEmail == null) ? "not-configured@example.com" : senderEmail;
-            appPassword = (appPassword == null) ? "not-configured" : appPassword;
+        if (!"true".equalsIgnoreCase(enabled)
+                || senderEmail == null || senderEmail.isBlank()
+                || appPassword == null || appPassword.isBlank()) {
+            System.out.println("SMTP email is disabled or not fully configured; notifications will be shown in the console.");
+            return new ConsoleNotificationChannel();
         }
 
         return new EmailChannel(senderEmail, appPassword);
@@ -75,12 +76,10 @@ public class EmailChannel implements NotificationChannel {
             System.out.println(
                     "Email successfully sent to: " + to);
 
-        } catch (Exception e) {
-
-            System.out.println(
-                    "Failed to send email to: " + to);
-
-            e.printStackTrace();
+        } catch (MessagingException e) {
+            System.out.println("Email notification failed for " + to + ": " + e.getMessage());
+            System.out.println("Falling back to console notification.");
+            new ConsoleNotificationChannel().sendMessage(to, message);
         }
     }
 }

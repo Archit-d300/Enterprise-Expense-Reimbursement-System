@@ -19,8 +19,10 @@ public final class NotificationDispatcher {
                 notification = new ReimbursementNotification(channel);
                 break;
             case REJECTED:
-            case PAYMENT_FAILED:
                 notification = new RejectionNotification(channel);
+                break;
+            case PAYMENT_FAILED:
+                notification = new PaymentFailedNotification(channel);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown final status: " + finalStatus);
