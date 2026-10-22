@@ -4,8 +4,8 @@ public class ReceiptValidationHandler extends ExpenseHandler {
 
     @Override
     public boolean handle(ExpenseClaim claim) {
-        if (claim.getEmail() == null || claim.getEmail().trim().isEmpty()) {
-            reject(claim, "Employee email/receipt information is missing.");
+        if (claim.getReceiptReference() == null || claim.getReceiptReference().trim().isEmpty()) {
+            reject(claim, "Receipt reference is missing.");
             return false;
         }
 

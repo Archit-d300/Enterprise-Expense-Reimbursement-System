@@ -1,10 +1,11 @@
 package approval;
 import model.ExpenseClaim;
+import model.ExpenseLimits;
 public class ManagerApprovalHandler extends ExpenseHandler{
      @Override
     public boolean handle(ExpenseClaim claim) {
 
-        if (claim.getAmount() <= 50000) {
+        if (claim.getAmount() <= ExpenseLimits.MAX_APPROVABLE_AMOUNT) {
 
             approve(claim);
             System.out.println("Manager Approval: PASSED");
