@@ -1,22 +1,23 @@
 package singleton;
 
 import policy.*;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Locale;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ExpenseManagementSystem {
-    private static ExpenseManagementSystem instance;
-    private Map<String,User> userRegistry = new HashMap<>();
+    private final Map<String, User> userRegistry = new ConcurrentHashMap<>();
 
     private ExpenseManagementSystem() {
 
     }
 
     public static ExpenseManagementSystem getInstance() {
-        if (instance == null) {
-            instance = new ExpenseManagementSystem();
-        }
-        return instance;
+        return InstanceHolder.INSTANCE;
+    }
+
+    private static final class InstanceHolder {
+        private static final ExpenseManagementSystem INSTANCE = new ExpenseManagementSystem();
     }
 
     public void registerUser(User user) {
@@ -30,7 +31,7 @@ public class ExpenseManagementSystem {
         if (role == null) 
             return new EmployeeExpenseFactory();
         
-        switch (role.toUpperCase()) {
+        switch (role.toUpperCase(Locale.ROOT)) {
             case "MANAGER":
             case "FINANCE":
                 return new ManagerExpenseFactory();
