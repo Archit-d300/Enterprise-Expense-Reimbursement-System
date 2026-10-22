@@ -6,6 +6,7 @@ import factory.ExpenseFactory;
 
 import approval.ExpenseHandler;
 import approval.Chain;
+import approval.ApprovalMediator;
 
 import payment.ReimbursementProcessor;
 import payment.PaymentRecord;
@@ -71,8 +72,7 @@ public class EmployeeReimbursementSystem implements ReimbursementSystem {
             remarks = decision.getReason();
 
         } else {
-            ExpenseHandler chain = Chain.createChain();
-            boolean chainApproved = chain.handle(claim);
+             boolean chainApproved = new ApprovalMediator().process(claim);
 
             subject.notifyObservers(claim, user);
 
