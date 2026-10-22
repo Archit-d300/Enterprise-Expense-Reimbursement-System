@@ -26,6 +26,7 @@ import notification.EmailChannel;
 import singleton.ExpenseManagementSystem;
 
 import db.PendingExpense;
+import java.util.Objects;
 
 
 public class EmployeeReimbursementSystem implements ReimbursementSystem {
@@ -38,9 +39,13 @@ public class EmployeeReimbursementSystem implements ReimbursementSystem {
     private final NotificationChannel notificationChannel;
 
     public EmployeeReimbursementSystem() {
+        this(EmailChannel.fromEnvironment());
+    }
+
+    public EmployeeReimbursementSystem(NotificationChannel notificationChannel) {
         this.system = ExpenseManagementSystem.getInstance();
         this.subject = ExpenseClaimSubject.withDefaultObservers();
-        this.notificationChannel = EmailChannel.fromEnvironment();
+        this.notificationChannel = Objects.requireNonNull(notificationChannel, "notificationChannel");
     }
 
     @Override
@@ -56,6 +61,9 @@ public class EmployeeReimbursementSystem implements ReimbursementSystem {
 
         ExpenseFactory expenseFactory = ExpenseFactory.forType(pe.getExpenseType());
         ExpenseClaim claim = expenseFactory.createExpense(pe.getEmployeeId(), pe.getAmount(), pe.getEmployeeEmail(), pe.getDescription());
+        claim.setReceiptReference(pe.getReceiptReference());
+        claim.setDepartment(pe.getDepartment());
+        claim.setRole(pe.getRole());
         claim.submit();
 
         String finalStatus;
@@ -72,7 +80,7 @@ public class EmployeeReimbursementSystem implements ReimbursementSystem {
             remarks = decision.getReason();
 
         } else {
-             boolean chainApproved = new ApprovalMediator().process(claim);
+             boolean chainApproved = new ApprovalMediator().process(claim, decision.requiresApproval());
 
             subject.notifyObservers(claim, user);
 
@@ -81,7 +89,11 @@ public class EmployeeReimbursementSystem implements ReimbursementSystem {
                 System.out.println("Reimbursement Calculator (role policy) eligible amount: Rs " + decision.getEligibleAmount());
 
                 ReimbursementProcessor processor = new ReimbursementProcessor();
-                PaymentRecord record = processor.processReimbursement(claim);
+                PaymentRecord record = processor.processReimbursement(
+                        claim,
+                        decision.getEligibleAmount(),
+                        decision.isAllowed(),
+                        chainApproved);
 
                 subject.notifyObservers(claim, user);
 
