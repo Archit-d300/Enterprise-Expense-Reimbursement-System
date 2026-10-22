@@ -55,6 +55,8 @@ public class DatabaseManager {
                 "  expense_type TEXT NOT NULL," +
                 "  amount REAL NOT NULL," +
                 "  description TEXT," +
+                "  department TEXT NOT NULL DEFAULT 'GENERAL'," +
+                "  receipt_reference TEXT NOT NULL DEFAULT ''," +
                 "  status TEXT NOT NULL DEFAULT 'PENDING'," +
                 "  created_at TEXT NOT NULL DEFAULT (datetime('now'))" +
                 ");";
@@ -69,6 +71,8 @@ public class DatabaseManager {
                 "  expense_type TEXT NOT NULL," +
                 "  amount REAL NOT NULL," +
                 "  description TEXT," +
+                "  department TEXT NOT NULL DEFAULT 'GENERAL'," +
+                "  receipt_reference TEXT NOT NULL DEFAULT ''," +
                 "  final_status TEXT NOT NULL," +
                 "  remarks TEXT," +
                 "  transaction_id TEXT," +
@@ -79,6 +83,10 @@ public class DatabaseManager {
         try (Statement stmt = connection.createStatement()) {
             stmt.execute(pendingTable);
             stmt.execute(processedTable);
+            ensureColumnExists("pending_expenses", "department", "TEXT NOT NULL DEFAULT 'GENERAL'");
+            ensureColumnExists("pending_expenses", "receipt_reference", "TEXT NOT NULL DEFAULT ''");
+            ensureColumnExists("processed_expenses", "department", "TEXT NOT NULL DEFAULT 'GENERAL'");
+            ensureColumnExists("processed_expenses", "receipt_reference", "TEXT NOT NULL DEFAULT ''");
             System.out.println("Schema ready: pending_expenses, processed_expenses.");
         } catch (SQLException e) {
             throw new RuntimeException("Failed to initialize schema: " + e.getMessage(), e);
@@ -99,25 +107,26 @@ public class DatabaseManager {
         }
 
         String insertSql = "INSERT INTO pending_expenses " +
-                "(employee_id, employee_name, employee_email, role, expense_type, amount, description) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+                "(employee_id, employee_name, employee_email, role, expense_type, amount, description, department, receipt_reference) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         Object[][] sampleRows = {
                 { 101, "Archit Deshpande", "architdeshpande.study@gmail.com", "EMPLOYEE", "TRAVEL", 15000.0,
-                        "Client visit - Pune to Mumbai flight + cab" },
+                        "Client visit - Pune to Mumbai flight + cab", "Sales", "receipts/101-travel.pdf" },
                 { 102, "Priya Nair", "priya.nair@example.com", "EMPLOYEE", "FOOD", 8000.0,
-                        "Team lunch during offsite" },
+                        "Team lunch during offsite", "Engineering", "receipts/102-food.pdf" },
                 { 103, "Arjun Mehta", "arjun.mehta@example.com", "MANAGER", "ACCOMMODATION", 15000.0,
-                        "2-night hotel stay for vendor audit" },
+                        "2-night hotel stay for vendor audit", "Operations", "receipts/103-hotel.pdf" },
                 { 104, "Sneha Kulkarni", "sneha.kulkarni@example.com", "MANAGER", "FOOD", 90000.0,
-                        "Quarterly client dinner (bulk booking)" },
+                        "Quarterly client dinner (bulk booking)", "Sales", "receipts/104-dinner.pdf" },
                 { 105, "Vikram Rao", "vikram.rao@example.com", "FINANCE", "OFFICE", 4000.0,
-                        "Printer cartridges and stationery" },
+                        "Printer cartridges and stationery", "Finance", "receipts/105-office.pdf" },
                 { 106, "Ananya Iyer", "ananya.iyer@example.com", "ADMIN", "OFFICE", 55000.0,
-                        "New workstation setup for new hires" },
+                        "New workstation setup for new hires", "Administration", "receipts/106-workstation.pdf" },
                 { 107, "Karan Verma", "karan.verma@example.com", "ADMIN", "TRAVEL", 95000.0,
-                        "International conference travel" },
-                { 108, "Divya Reddy", "divya.reddy@example.com", "EMPLOYEE", "OFFICE", 2000.0, "Notebooks and pens" }
+                        "International conference travel", "Administration", "receipts/107-travel.pdf" },
+                { 108, "Divya Reddy", "divya.reddy@example.com", "EMPLOYEE", "OFFICE", 2000.0,
+                        "Notebooks and pens", "Engineering", "receipts/108-stationery.pdf" }
         };
 
         try (PreparedStatement ps = connection.prepareStatement(insertSql)) {
@@ -129,6 +138,8 @@ public class DatabaseManager {
                 ps.setString(5, (String) row[4]);
                 ps.setDouble(6, (Double) row[5]);
                 ps.setString(7, (String) row[6]);
+                ps.setString(8, (String) row[7]);
+                ps.setString(9, (String) row[8]);
                 ps.addBatch();
             }
             ps.executeBatch();
@@ -139,7 +150,8 @@ public class DatabaseManager {
     }
 
     public List<PendingExpense> fetchPending() {
-        String sql = "SELECT id, employee_id, employee_name, employee_email, role, expense_type, amount, description " +
+        String sql = "SELECT id, employee_id, employee_name, employee_email, role, expense_type, amount, " +
+                "description, department, receipt_reference " +
                 "FROM pending_expenses WHERE status = 'PENDING' ORDER BY id";
 
         List<PendingExpense> result = new ArrayList<>();
@@ -156,7 +168,9 @@ public class DatabaseManager {
                         rs.getString("role"),
                         rs.getString("expense_type"),
                         rs.getDouble("amount"),
-                        rs.getString("description")));
+                        rs.getString("description"),
+                        rs.getString("department"),
+                        rs.getString("receipt_reference")));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to fetch pending expenses: " + e.getMessage(), e);
@@ -179,7 +193,8 @@ public class DatabaseManager {
     public void insertProcessed(PendingExpense pe, String finalStatus, String remarks, String transactionId) {
         String sql = "INSERT INTO processed_expenses " +
                 "(pending_id, employee_id, employee_name, employee_email, role, expense_type, amount, description, " +
-                " final_status, remarks, transaction_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                " department, receipt_reference, final_status, remarks, transaction_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, pe.getId());
@@ -190,12 +205,83 @@ public class DatabaseManager {
             ps.setString(6, pe.getExpenseType());
             ps.setDouble(7, pe.getAmount());
             ps.setString(8, pe.getDescription());
-            ps.setString(9, finalStatus);
-            ps.setString(10, remarks);
-            ps.setString(11, transactionId);
+            ps.setString(9, pe.getDepartment());
+            ps.setString(10, pe.getReceiptReference() == null ? "" : pe.getReceiptReference());
+            ps.setString(11, finalStatus);
+            ps.setString(12, remarks);
+            ps.setString(13, transactionId);
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Failed to insert into processed_expenses: " + e.getMessage(), e);
+        }
+    }
+
+    public int insertPending(PendingExpense expense) {
+        String sql = "INSERT INTO pending_expenses " +
+                "(employee_id, employee_name, employee_email, role, expense_type, amount, description, department, receipt_reference) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, expense.getEmployeeId());
+            ps.setString(2, expense.getEmployeeName());
+            ps.setString(3, expense.getEmployeeEmail());
+            ps.setString(4, expense.getRole());
+            ps.setString(5, expense.getExpenseType());
+            ps.setDouble(6, expense.getAmount());
+            ps.setString(7, expense.getDescription());
+            ps.setString(8, expense.getDepartment());
+            ps.setString(9, expense.getReceiptReference() == null ? "" : expense.getReceiptReference());
+            ps.executeUpdate();
+            try (Statement statement = connection.createStatement();
+                    ResultSet result = statement.executeQuery("SELECT last_insert_rowid()")) {
+                if (result.next()) {
+                    return result.getInt(1);
+                }
+            }
+            throw new SQLException("SQLite did not return the inserted expense ID.");
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to insert pending expense: " + e.getMessage(), e);
+        }
+    }
+
+    public List<ProcessedExpense> fetchProcessedExpenses() {
+        String sql = "SELECT pending_id, employee_id, employee_name, role, department, expense_type, amount, " +
+                "description, final_status, remarks, transaction_id, processed_at " +
+                "FROM processed_expenses ORDER BY processed_at, id";
+        List<ProcessedExpense> result = new ArrayList<>();
+        try (Statement statement = connection.createStatement();
+                ResultSet rs = statement.executeQuery(sql)) {
+            while (rs.next()) {
+                result.add(new ProcessedExpense(
+                        rs.getInt("pending_id"),
+                        rs.getInt("employee_id"),
+                        rs.getString("employee_name"),
+                        rs.getString("role"),
+                        rs.getString("department"),
+                        rs.getString("expense_type"),
+                        rs.getDouble("amount"),
+                        rs.getString("description"),
+                        rs.getString("final_status"),
+                        rs.getString("remarks"),
+                        rs.getString("transaction_id"),
+                        rs.getString("processed_at")));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to fetch processed expenses: " + e.getMessage(), e);
+        }
+        return result;
+    }
+
+    private void ensureColumnExists(String table, String column, String declaration) throws SQLException {
+        try (Statement statement = connection.createStatement();
+                ResultSet columns = statement.executeQuery("PRAGMA table_info(" + table + ")")) {
+            while (columns.next()) {
+                if (column.equalsIgnoreCase(columns.getString("name"))) {
+                    return;
+                }
+            }
+        }
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + declaration);
         }
     }
 }

@@ -10,9 +10,18 @@ public class PendingExpense implements ExpensePrototype<PendingExpense> {
     private final String expenseType;
     private final double amount;
     private final String description;
+    private final String department;
+    private final String receiptReference;
 
     public PendingExpense(int id, int employeeId, String employeeName, String employeeEmail,
                            String role, String expenseType, double amount, String description) {
+        this(id, employeeId, employeeName, employeeEmail, role, expenseType, amount, description,
+                "GENERAL", null);
+    }
+
+    public PendingExpense(int id, int employeeId, String employeeName, String employeeEmail,
+                          String role, String expenseType, double amount, String description,
+                          String department, String receiptReference) {
         this.id = id;
         this.employeeId = employeeId;
         this.employeeName = employeeName;
@@ -21,6 +30,8 @@ public class PendingExpense implements ExpensePrototype<PendingExpense> {
         this.expenseType = expenseType;
         this.amount = amount;
         this.description = description;
+        this.department = department;
+        this.receiptReference = receiptReference;
     }
 
     public int getId() { return id; }
@@ -31,6 +42,8 @@ public class PendingExpense implements ExpensePrototype<PendingExpense> {
     public String getExpenseType() { return expenseType; }
     public double getAmount() { return amount; }
     public String getDescription() { return description; }
+    public String getDepartment() { return department; }
+    public String getReceiptReference() { return receiptReference; }
 
     @Override
     public String toString() {
@@ -44,6 +57,6 @@ public class PendingExpense implements ExpensePrototype<PendingExpense> {
     @Override
 public PendingExpense cloneExpense() {
     return new PendingExpense(-1, employeeId, employeeName, employeeEmail, role,
-            expenseType, amount, description);
+            expenseType, amount, description, department, receiptReference);
 }
 }
