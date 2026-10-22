@@ -1,5 +1,7 @@
 package policy;
 
+import java.util.Locale;
+
 public final class UserFactory {
 
     private UserFactory() {
@@ -11,7 +13,7 @@ public final class UserFactory {
             return new Employee(id, name);
         }
 
-        switch (role.toUpperCase()) {
+        switch (role.toUpperCase(Locale.ROOT)) {
             case "MANAGER":
                 return new Manager(id, name);
             case "FINANCE":

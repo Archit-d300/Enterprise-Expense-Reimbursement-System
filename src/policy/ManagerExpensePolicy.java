@@ -1,8 +1,10 @@
 package policy;
 
+import model.ExpenseLimits;
+
 public class ManagerExpensePolicy implements ExpensePolicy {
     @Override
     public boolean isAllowed(double amount) {
-        return amount<=20000.0;
+        return Double.isFinite(amount) && amount > 0 && amount <= ExpenseLimits.MAX_APPROVABLE_AMOUNT;
     }
 }
