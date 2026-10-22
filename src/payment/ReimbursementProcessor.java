@@ -11,7 +11,11 @@ public class ReimbursementProcessor {
         this.paymentService = new PaymentServiceProxy();
     }
 
-    public PaymentRecord processReimbursement(ExpenseClaim claim) {
+    public PaymentRecord processReimbursement(
+            ExpenseClaim claim,
+            double eligibleAmount,
+            boolean employeeEligible,
+            boolean authorized) {
 
         if (claim == null) {
             return new PaymentRecord(
@@ -42,7 +46,7 @@ public class ReimbursementProcessor {
          * The Proxy still performs both checks.
          */
         Reimbursement reimbursement =
-                new Reimbursement(claim, true, true);
+                new Reimbursement(claim, eligibleAmount, employeeEligible, authorized);
 
         PaymentRecord record =
                 paymentService.processPayment(reimbursement);

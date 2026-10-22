@@ -5,15 +5,18 @@ import model.ExpenseClaim;
 public class Reimbursement {
 
     private ExpenseClaim claim;
+    private double amount;
     private boolean employeeEligible;
     private boolean authorized;
 
     public Reimbursement(
             ExpenseClaim claim,
+            double amount,
             boolean employeeEligible,
             boolean authorized) {
 
         this.claim = claim;
+        this.amount = amount;
         this.employeeEligible = employeeEligible;
         this.authorized = authorized;
     }
@@ -23,7 +26,7 @@ public class Reimbursement {
     }
 
     public double getAmount() {
-        return claim.getAmount();
+        return amount;
     }
 
     public int getEmployeeId() {

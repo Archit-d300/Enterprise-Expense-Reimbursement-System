@@ -69,7 +69,10 @@ public class PaymentServiceProxy implements PaymentService {
         double amount = reimbursement.getAmount();
 
 
-        return amount > 0 && amount <= 100000;
+        return Double.isFinite(amount)
+                && amount > 0
+                && amount <= 100000
+                && amount <= reimbursement.getClaim().getAmount();
     }
 
     private boolean isAuthorized(Reimbursement reimbursement) {
